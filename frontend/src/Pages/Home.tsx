@@ -78,7 +78,7 @@ interface InspirationCardProps {
     title: string;
     brand: string;
     product: string;
-    onKnowMore: () => void; // Define the type for onKnowMore
+    onKnowMore: () => void;
 }
 
 const InspirationCard: React.FC<InspirationCardProps> = ({ title, brand, product, onKnowMore }) => {
