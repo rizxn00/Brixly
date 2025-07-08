@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
@@ -78,7 +78,7 @@ interface InspirationCardProps {
     title: string;
     brand: string;
     product: string;
-    onKnowMore: () => void; // Define the type for onKnowMore
+    onKnowMore: () => void;
 }
 
 const InspirationCard: React.FC<InspirationCardProps> = ({ title, brand, product, onKnowMore }) => {
