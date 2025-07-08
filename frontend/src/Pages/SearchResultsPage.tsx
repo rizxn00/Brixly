@@ -1,5 +1,7 @@
 import { Menu, ChevronLeft, Search } from 'lucide-react';
 
+
+import { Menu, ChevronLeft, Search } from 'lucide-react';
 export default function SearchResultsPage() {
     const products = [
         {
