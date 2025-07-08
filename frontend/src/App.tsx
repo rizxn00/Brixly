@@ -1,9 +1,9 @@
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import HomePage from './Pages/Home'
-import ProductDetailPage from './Pages/ProductDetailPage'
-import SearchResultsPage from './Pages/SearchResultsPage'
-import DealersList from './Pages/DealersList'
+import HomePage from './pages/Home'
+import ProductDetailPage from './pages/ProductDetailPage'
+import SearchResultsPage from './pages/SearchResultsPage'
+import DealersList from './pages/DealersList'
 
 function App() {
   return (
