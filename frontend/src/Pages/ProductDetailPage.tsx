@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Menu, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-
 export default function WoodenTileProductPage() {
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -15,7 +14,7 @@ export default function WoodenTileProductPage() {
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
             <div className="bg-white shadow-sm">
-                <div className="flex items-center justify-between p-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between p-4 md:p-6">
                     <Menu className="w-6 h-6 text-gray-700" />
                     <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-medium">N</span>
@@ -24,57 +23,57 @@ export default function WoodenTileProductPage() {
             </div>
 
             {/* Product Image */}
-            <div className="relative">
+            <div className="relative max-w-7xl mx-auto">
                 <img
-                    src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop"
+                    src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop"
                     alt="Wooden Tile"
-                    className="w-full h-64 object-cover"
+                    className="w-full h-80 md:h-96 object-cover rounded-b-lg"
                 />
-
                 {/* More Options Button */}
-                <button className="absolute bottom-4 right-4 bg-white rounded-full p-2 shadow-lg">
+                <button className="absolute bottom-4 right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100">
                     <MoreHorizontal className="w-5 h-5 text-gray-600" />
                 </button>
             </div>
 
             {/* Product Content */}
-            <div className="bg-white rounded-t-3xl -mt-6 relative z-10 px-6 pt-6 pb-8">
+            <div className="max-w-7xl mx-auto bg-white rounded-t-3xl -mt-6 relative z-10 px-6 md:px-12 pt-8 pb-12">
                 {/* Product Title */}
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">Wooden Tile</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Wooden Tile</h1>
 
                 {/* Product Description */}
-                <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-8">
                     Neuro Wood is one of the largest branded global chain of premium bath and light solutions; hardware, closomatic,
                     doors, tiles, sanitaryware, and home decor. We are the comprehensive one's own bathroom and lighting concept
                     development, product design and production, marketing and support that help make direct concepts into reality.
                 </p>
 
                 {/* Tags */}
-                <div className="flex gap-2 mb-8">
-                    <span className="bg-gray-100 text-gray-600 py-1 px-3 rounded-full text-xs">
+                <div className="flex gap-3 mb-10">
+                    <span className="bg-gray-100 text-gray-600 py-1.5 px-4 rounded-full text-xs md:text-sm">
                         Ease of assemble
                     </span>
-                    <span className="bg-gray-100 text-gray-600 py-1 px-3 rounded-full text-xs">
+                    <span className="bg-gray-100 text-gray-600 py-1.5 px-4 rounded-full text-xs md:text-sm">
                         Value for money
                     </span>
-                    <span className="bg-gray-100 text-gray-600 py-1 px-3 rounded-full text-xs">
+                    <span className="bg-gray-100 text-gray-600 py-1.5 px-4 rounded-full text-xs md:text-sm">
                         Product
                     </span>
+
                 </div>
 
                 {/* Expandable Sections */}
-                <div className="space-y-4 mb-8">
+                <div className="space-y-6 mb-10">
                     {/* Product Size */}
                     <div className="border-b border-gray-200 pb-4">
                         <button
                             onClick={() => toggleSection('size')}
                             className="flex items-center justify-between w-full text-left"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                    <div className="w-4 h-4 bg-gray-400 rounded"></div>
-                                </div>
-                                <span className="text-gray-900 font-medium">Product Size</span>
+                            <div className="flex items-center gap-4">
+                                <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8 3.5H5C4.46957 3.5 3.96086 3.71071 3.58579 4.08579C3.21071 4.46086 3 4.96957 3 5.5V8.5M21 8.5V5.5C21 4.96957 20.7893 4.46086 20.4142 4.08579C20.0391 3.71071 19.5304 3.5 19 3.5H16M16 21.5H19C19.5304 21.5 20.0391 21.2893 20.4142 20.9142C20.7893 20.5391 21 20.0304 21 19.5V16.5M3 16.5V19.5C3 20.0304 3.21071 20.5391 3.58579 20.9142C3.96086 21.2893 4.46957 21.5 5 21.5H8" stroke="#8E8E8E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span className="text-gray-900 font-medium text-sm md:text-lg">Product Size</span>
                             </div>
                             {expandedSection === 'size' ? (
                                 <ChevronUp className="w-5 h-5 text-gray-500" />
@@ -83,7 +82,7 @@ export default function WoodenTileProductPage() {
                             )}
                         </button>
                         {expandedSection === 'size' && (
-                            <div className="mt-4 pl-11 text-gray-600 text-sm">
+                            <div className="mt-4 pl-12 text-gray-600 text-sm md:text-base">
                                 <p>Available sizes: 600x600mm, 800x800mm, 1200x600mm</p>
                                 <p>Thickness: 8mm, 10mm, 12mm</p>
                             </div>
@@ -96,11 +95,13 @@ export default function WoodenTileProductPage() {
                             onClick={() => toggleSection('material')}
                             className="flex items-center justify-between w-full text-left"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                    <div className="w-4 h-4 bg-gray-400 rounded"></div>
-                                </div>
-                                <span className="text-gray-900 font-medium">Material Used</span>
+                            <div className="flex items-center gap-4">
+                                <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 16.4999V8.4999C20.9996 8.14918 20.9071 7.80471 20.7315 7.50106C20.556 7.19742 20.3037 6.94526 20 6.7699L13 2.7699C12.696 2.59437 12.3511 2.50195 12 2.50195C11.6489 2.50195 11.304 2.59437 11 2.7699L4 6.7699C3.69626 6.94526 3.44398 7.19742 3.26846 7.50106C3.09294 7.80471 3.00036 8.14918 3 8.4999V16.4999C3.00036 16.8506 3.09294 17.1951 3.26846 17.4987C3.44398 17.8024 3.69626 18.0545 4 18.2299L11 22.2299C11.304 22.4054 11.6489 22.4979 12 22.4979C12.3511 22.4979 12.696 22.4054 13 22.2299L20 18.2299C20.3037 18.0545 20.556 17.8024 20.7315 17.4987C20.9071 17.1951 20.9996 16.8506 21 16.4999Z" stroke="#8E8E8E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M3.27 7.45996L12 12.51L20.73 7.45996" stroke="#8E8E8E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M12 22.58V12.5" stroke="#8E8E8E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span className="text-gray-900 font-medium text-sm md:text-lg">Material Used</span>
                             </div>
                             {expandedSection === 'material' ? (
                                 <ChevronUp className="w-5 h-5 text-gray-500" />
@@ -109,7 +110,7 @@ export default function WoodenTileProductPage() {
                             )}
                         </button>
                         {expandedSection === 'material' && (
-                            <div className="mt-4 pl-11 text-gray-600 text-sm">
+                            <div className="mt-4 pl-12 text-gray-600 text-sm md:text-base">
                                 <p>Premium engineered wood with protective coating</p>
                                 <p>Water-resistant laminate surface</p>
                                 <p>Anti-slip texture finish</p>
@@ -123,11 +124,13 @@ export default function WoodenTileProductPage() {
                             onClick={() => toggleSection('info')}
                             className="flex items-center justify-between w-full text-left"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                    <div className="w-4 h-4 bg-gray-400 rounded"></div>
-                                </div>
-                                <span className="text-gray-900 font-medium">More Info</span>
+                            <div className="flex items-center gap-4">
+                                <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 22.5C17.5228 22.5 22 18.0228 22 12.5C22 6.97715 17.5228 2.5 12 2.5C6.47715 2.5 2 6.97715 2 12.5C2 18.0228 6.47715 22.5 12 22.5Z" stroke="#8E8E8E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M12 16.5V12.5" stroke="#8E8E8E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M12 8.5H12.01" stroke="#8E8E8E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span className="text-gray-900 font-medium text-sm md:text-lg">More Info</span>
                             </div>
                             {expandedSection === 'info' ? (
                                 <ChevronUp className="w-5 h-5 text-gray-500" />
@@ -136,7 +139,7 @@ export default function WoodenTileProductPage() {
                             )}
                         </button>
                         {expandedSection === 'info' && (
-                            <div className="mt-4 pl-11 text-gray-600 text-sm">
+                            <div className="mt-4 pl-12 text-gray-600 text-sm md:text-base">
                                 <p>Installation: Click-lock system for easy installation</p>
                                 <p>Maintenance: Regular cleaning with damp cloth</p>
                                 <p>Warranty: 5 years manufacturer warranty</p>
@@ -146,18 +149,18 @@ export default function WoodenTileProductPage() {
                     </div>
                 </div>
 
-                {/* Contact Dealer Button */}
-                <button
-                    onClick={() => navigate('/dealers-list')}
-                    className="w-full bg-yellow-400 text-gray-900 py-4 rounded-full font-semibold text-lg mb-4 hover:bg-yellow-500 transition-colors"
-                >
-                    Contact Dealer
-                </button>
-
-                {/* More From NEURO Button */}
-                <button className="w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-full font-medium hover:bg-gray-50 transition-colors">
-                    More From NEURO
-                </button>
+                {/* Buttons */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                        onClick={() => navigate('/dealers-list')}
+                        className="w-full bg-yellow-400 text-white py-4 rounded-full font-semibold hover:bg-yellow-500 transition-colors text-base"
+                    >
+                        Contact Dealer
+                    </button>
+                    <button className="w-full text-bold bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-full font-medium hover:bg-gray-50 transition-colors text-base">
+                        More From NEURO
+                    </button>
+                </div>
             </div>
         </div>
     );
