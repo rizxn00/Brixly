@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Menu, Calendar, ArrowRight, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import { useSwipeable } from 'react-swipeable';
 
 // ===== COMPONENTS =====
 
@@ -21,9 +21,9 @@ const Header = () => {
 // Featured Card Component
 const FeaturedCard = () => {
     const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate(); // Add this line to declare navigate
+    const navigate = useNavigate();
+
     const handleSearch = () => {
-        // Optional: You can pass the search query using state or URL params
         navigate('/SearchResultsPage');
     };
 
@@ -62,15 +62,14 @@ const FeaturedCard = () => {
                         />
                         <button
                             onClick={handleSearch}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black rounded-full p-2">
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black rounded-full p-2"
+                        >
                             <ArrowRight className="w-4 h-4 text-white" />
-
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-
     );
 };
 
@@ -79,60 +78,60 @@ interface InspirationCardProps {
     title: string;
     brand: string;
     product: string;
-    image: string;
     onKnowMore: () => void;
 }
 
-const InspirationCard: React.FC<InspirationCardProps> = ({ title, brand, product, image, onKnowMore }) => {
+const InspirationCard: React.FC<InspirationCardProps> = ({ title, brand, product, onKnowMore }) => {
     return (
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-            <div className="relative aspect-[4/3] bg-gray-200">
-                {/* Mock image with interior scene */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                    {/* Simulated interior scene */}
-                    <div className="relative w-full h-full">
-                        {/* Background wall */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-gray-300 to-gray-400"></div>
-
-                        {/* Table representation */}
-                        <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2">
-                            <div className="w-16 h-2 bg-orange-300 rounded-full"></div>
-                            <div className="w-1 h-8 bg-gray-600 mx-auto"></div>
+        <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg z-10">
+            <div className="flex">
+                {/* Left side - Content */}
+                <div className="w-1/2 bg-black text-white p-6 flex flex-col justify-between min-h-[240px]">
+                    <div>
+                        <h3 className="text-white font-semibold text-lg mb-4">{title}</h3>
+                        <div className="space-y-2 text-sm">
+                            <div>
+                                <span className="text-orange-400">Brand - </span>
+                                <span className="font-medium">{brand}</span>
+                            </div>
+                            <div>
+                                <span className="text-white/90">Product - </span>
+                                <span className="text-white/90">{product}</span>
+                            </div>
                         </div>
-
-                        {/* Chair representations */}
-                        <div className="absolute bottom-1/4 left-1/3 transform -translate-x-1/2">
-                            <div className="w-3 h-6 bg-orange-400 rounded-sm"></div>
-                        </div>
-                        <div className="absolute bottom-1/4 right-1/3 transform translate-x-1/2">
-                            <div className="w-3 h-6 bg-orange-400 rounded-sm"></div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Overlay content */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-
-                {/* Content overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-white font-semibold text-lg mb-2">{title}</h3>
-                    <div className="text-white/90 text-sm mb-1">
-                        <span className="text-orange-400">Brand - </span>
-                        <span className="font-medium">{brand}</span>
-                    </div>
-                    <div className="text-white/90 text-sm mb-4">
-                        <span>Product - </span>
-                        <span>{product}</span>
                     </div>
 
                     {/* Know more button */}
                     <button
                         onClick={onKnowMore}
-                        className="flex items-center gap-2 text-white text-sm font-medium hover:text-orange-300 transition-colors"
+                        className="flex items-center gap-2 text-white text-sm font-medium hover:text-orange-300 transition-colors bg-gray-800 px-4 py-2 rounded-full w-fit"
                     >
                         Know more
                         <ArrowRight className="w-4 h-4" />
                     </button>
+                </div>
+
+                {/* Right side - Image */}
+                <div className="w-1/2 bg-gray-200 min-h-[240px] relative">
+                    {/* Mock interior scene */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-400">
+                        {/* Simulated concrete wall texture */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-gray-300 to-gray-500"></div>
+
+                        {/* Table representation */}
+                        <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2">
+                            <div className="w-12 h-2 bg-orange-300 rounded-full"></div>
+                            <div className="w-1 h-6 bg-gray-600 mx-auto"></div>
+                        </div>
+
+                        {/* Chair representations */}
+                        <div className="absolute bottom-1/4 left-1/4">
+                            <div className="w-2 h-4 bg-orange-400 rounded-sm"></div>
+                        </div>
+                        <div className="absolute bottom-1/4 right-1/4">
+                            <div className="w-2 h-4 bg-orange-400 rounded-sm"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,80 +141,123 @@ const InspirationCard: React.FC<InspirationCardProps> = ({ title, brand, product
 // Daily Inspiration Section Component
 const DailyInspirationSection = () => {
     const navigate = useNavigate();
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    // Dummy data for inspiration cards
+    const inspirationData = [
+        {
+            id: 1,
+            title: 'Fabric Wall Panels',
+            brand: 'Rivacase',
+            product: 'Grey Water',
+        },
+        {
+            id: 2,
+            title: 'Wooden Accent Wall',
+            brand: 'Nordic Designs',
+            product: 'Oak Serenity',
+        },
+        {
+            id: 3,
+            title: 'Modern Ceiling Panels',
+            brand: 'Urban Interiors',
+            product: 'White Horizon',
+        },
+        {
+            id: 4,
+            title: 'Textured Wall Tiles',
+            brand: 'Artisan Crafts',
+            product: 'Stone Wave',
+        },
+    ];
+
+    // Duplicate data for infinite loop
+    const extendedData = [...inspirationData, ...inspirationData];
 
     const handleKnowMore = (title: string) => {
         console.log(`Know more clicked for: ${title}`);
         navigate('/product-detail');
     };
 
+    // Swipe handlers
+    const handlers = useSwipeable({
+        onSwipedLeft: () => {
+            setCurrentIndex((prev) => prev + 1);
+        },
+        onSwipedRight: () => {
+            setCurrentIndex((prev) => prev - 1);
+        },
+        trackMouse: true,
+    });
+
+    // Handle infinite loop logic
+    useEffect(() => {
+        if (currentIndex >= inspirationData.length) {
+            setTimeout(() => {
+                setCurrentIndex(currentIndex - inspirationData.length);
+            }, 500); // Match transition duration
+        } else if (currentIndex < 0) {
+            setTimeout(() => {
+                setCurrentIndex(currentIndex + inspirationData.length);
+            }, 500);
+        }
+    }, [currentIndex, inspirationData.length]);
+
     return (
         <div className="px-4">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Daily Inspiration</h2>
 
-            {/* Stacked Card Design */}
-            <div className="relative max-w-sm mx-auto">
-                {/* Background stacked cards shifted to top-left */}
-                <div className="absolute -top-2 -left-2 w-full h-full bg-gray-200 rounded-2xl z-0"></div>
-                <div className="absolute -top-1 -left-1 w-full h-full bg-gray-300 rounded-2xl z-0"></div>
+            {/* Swipeable Card Container */}
+            <div className="relative max-w-4xl mx-auto overflow-hidden text-xs" {...handlers}>
+                <div
+                    className="flex transition-transform duration-500 ease-in-out"
+                    style={{
+                        transform: `translateX(-${(currentIndex % inspirationData.length) * (window.innerWidth >= 640 ? 50 : 100)}%)`,
+                    }}
+                >
+                    {extendedData.map((item, index) => (
+                        <div
+                            key={`${item.id}-${index}`}
+                            className="w-full sm:w-1/2 flex-shrink-0 px-2 relative text-xs"
+                        >
+                            {/* Stack effect background cards */}
+                            <div
+                                className="absolute inset-0 bg-gray-200 rounded-2xl z-0 text-xs"
+                                style={{
+                                    transform: 'translateY(-12px) rotate(-3deg) scale(0.98)',
+                                    opacity: 0.3,
+                                }}
+                            ></div>
+                            <div
+                                className="absolute inset-0 bg-gray-300 rounded-2xl z-0 text-xs"
+                                style={{
+                                    transform: 'translateY(-6px) rotate(3deg) scale(0.99)',
+                                    opacity: 0.5,
+                                }}
+                            ></div>
 
-                {/* Main card */}
-                <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg z-10">
-                    <div className="flex">
-                        {/* Left side - Content */}
-                        <div className="w-1/2 bg-black text-white p-6 flex flex-col justify-between min-h-[240px]">
-                            <div>
-                                <h3 className="text-white font-semibold text-lg mb-4">Fabric wall panels</h3>
-                                <div className="space-y-2 text-sm">
-                                    <div>
-                                        <span className="text-orange-400">Brand - </span>
-                                        <span className="font-medium">Rivacase</span>
-                                    </div>
-                                    <div>
-                                        <span className="text-white/90">Product - </span>
-                                        <span className="text-white/90">Grey water</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Know more button */}
-                            <button
-                                onClick={() => handleKnowMore('Fabric wall panels')}
-                                className="flex items-center gap-2 text-white text-sm font-medium hover:text-orange-300 transition-colors bg-gray-800 px-4 py-2 rounded-full w-fit"
+                            {/* Main card with animation */}
+                            <div
+                                className="relative z-10 transition-transform duration-500 ease-in-out text-xs"
+                                style={{
+                                    transform: currentIndex % inspirationData.length === index % inspirationData.length ? 'scale(1)' : 'scale(0.95)',
+                                    opacity: currentIndex % inspirationData.length === index % inspirationData.length ? 1 : 0.8,
+                                }}
                             >
-                                Know more
-                                <ArrowRight className="w-4 h-4" />
-                            </button>
-                        </div>
-
-                        {/* Right side - Image */}
-                        <div className="w-1/2 bg-gray-200 min-h-[240px] relative">
-                            {/* Mock interior scene */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-gray-300 to-gray-400">
-                                {/* Simulated concrete wall texture */}
-                                <div className="absolute inset-0 bg-gradient-to-b from-gray-300 to-gray-500"></div>
-
-                                {/* Table representation */}
-                                <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2">
-                                    <div className="w-12 h-2 bg-orange-300 rounded-full"></div>
-                                    <div className="w-1 h-6 bg-gray-600 mx-auto"></div>
-                                </div>
-
-                                {/* Chair representations */}
-                                <div className="absolute bottom-1/4 left-1/4">
-                                    <div className="w-2 h-4 bg-orange-400 rounded-sm"></div>
-                                </div>
-                                <div className="absolute bottom-1/4 right-1/4">
-                                    <div className="w-2 h-4 bg-orange-400 rounded-sm"></div>
-                                </div>
+                                <InspirationCard
+                                    title={item.title}
+                                    brand={item.brand}
+                                    product={item.product}
+                                    onKnowMore={() => handleKnowMore(item.title)}
+                                />
                             </div>
                         </div>
-                    </div>
+                    ))}
                 </div>
             </div>
         </div>
     );
 };
-
 
 // ===== PAGES =====
 
