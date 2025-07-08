@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Menu, Calendar, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Header Component
 const Header = () => {
@@ -215,23 +216,28 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                     let zIndex = 0;
                     let transform = '';
                     let opacity = 0;
+                    let pointerEvents = 'none';
 
                     if (isActive) {
                         zIndex = 30;
                         transform = 'translateY(0px) rotate(0deg) scale(1)';
                         opacity = 1;
+                        pointerEvents = 'auto';
                     } else if (isNext) {
                         zIndex = 20;
                         transform = 'translateY(8px) rotate(3deg) scale(0.95)';
                         opacity = 0.8;
+                        pointerEvents = 'none';
                     } else if (isPrev) {
                         zIndex = 10;
                         transform = 'translateY(16px) rotate(-3deg) scale(0.9)';
                         opacity = 0.6;
+                        pointerEvents = 'none';
                     } else {
                         zIndex = 0;
                         transform = 'translateY(24px) rotate(0deg) scale(0.85)';
                         opacity = 0.4;
+                        pointerEvents = 'none';
                     }
 
                     return (
@@ -242,6 +248,7 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                                 zIndex,
                                 transform,
                                 opacity,
+                                pointerEvents: pointerEvents as React.CSSProperties['pointerEvents'],
                             }}
                         >
                             <Card
@@ -274,6 +281,8 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
 // Daily Inspiration Section Component
 const DailyInspirationSection = () => {
     // Dummy data for inspiration cards
+    const navigate = useNavigate();
+
     const inspirationData = [
         {
             id: 1,
@@ -309,6 +318,7 @@ const DailyInspirationSection = () => {
 
     const handleKnowMore = (title: string) => {
         console.log(`Know more clicked for: ${title}`);
+        navigate('/product-detail');
     };
 
     return (
