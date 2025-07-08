@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSwipeable } from 'react-swipeable';
