@@ -74,10 +74,10 @@ const FeaturedCard: React.FC = () => {
         "Elegant marble flooring patterns...",
         "Contemporary glass partition ideas..."
     ];
-
+  
     const handleSearch = (): void => {
         console.log('Search:', searchQuery);
-        navigate('/SearchResultsPage')
+        navigate('/SearchResultsPage');
     };
 
     return (
