@@ -17,10 +17,12 @@ const Header = () => {
 
 // Featured Card Component
 const FeaturedCard = () => {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = () => {
         console.log('Search:', searchQuery);
+        navigate('/SearchResultsPage');
     };
 
     return (
