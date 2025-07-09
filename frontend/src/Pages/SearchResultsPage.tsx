@@ -1,6 +1,7 @@
 import { Menu, ChevronLeft, Search } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 export default function SearchResultsPage() {
+    const navigate = useNavigate();
     const products = [
         {
             id: 1,
@@ -45,6 +46,10 @@ export default function SearchResultsPage() {
             bgColor: "bg-gray-100"
         }
     ];
+    const goback = (): void => {
+       
+        navigate('/')
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -61,7 +66,7 @@ export default function SearchResultsPage() {
             {/* Search Bar */}
             <div className="px-4 py-3 bg-white border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                    <ChevronLeft className="w-5 h-5 text-gray-600" />
+                    <ChevronLeft className="w-5 h-5 text-gray-600" onClick={goback} />
                     <div className="flex-1 relative">
                         <div className="animated-border rounded-full">
                             <div className="flex items-center bg-white rounded-full px-4 py-2">
