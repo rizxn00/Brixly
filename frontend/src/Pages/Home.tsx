@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, Calendar, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Header Component
-const Header = () => {
+const Header: React.FC = () => {
     return (
         <header className="flex items-center justify-between p-4 bg-white">
             <Menu className="w-6 h-6 text-gray-700" />
@@ -15,12 +15,69 @@ const Header = () => {
     );
 };
 
-// Featured Card Component
-const FeaturedCard = () => {
-    const [searchQuery, setSearchQuery] = useState('');
+// Animated Placeholder Component
+interface AnimatedPlaceholderProps {
+    placeholders: string[];
+    className?: string;
+}
 
-    const handleSearch = () => {
+const AnimatedPlaceholder: React.FC<AnimatedPlaceholderProps> = ({ placeholders, className }) => {
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [displayText, setDisplayText] = useState<string>('');
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+    useEffect(() => {
+        const currentPlaceholder = placeholders[currentIndex];
+        const delay = isDeleting ? 50 : 100;
+
+        const timeout = setTimeout(() => {
+            if (!isDeleting) {
+                // Typing
+                if (displayText.length < currentPlaceholder.length) {
+                    setDisplayText(currentPlaceholder.substring(0, displayText.length + 1));
+                } else {
+                    // Finished typing, wait then start deleting
+                    setTimeout(() => setIsDeleting(true), 2000);
+                }
+            } else {
+                // Deleting
+                if (displayText.length > 0) {
+                    setDisplayText(displayText.substring(0, displayText.length - 1));
+                } else {
+                    // Finished deleting, move to next placeholder
+                    setIsDeleting(false);
+                    setCurrentIndex((prev) => (prev + 1) % placeholders.length);
+                }
+            }
+        }, delay);
+
+        return () => clearTimeout(timeout);
+    }, [displayText, isDeleting, currentIndex, placeholders]);
+
+    return (
+        <span className={className}>
+            {displayText}
+            <span className="animate-pulse text-gray-500">|</span>
+        </span>
+    );
+};
+
+// Featured Card Component
+const FeaturedCard: React.FC = () => {
+    const navigate = useNavigate();
+    const [searchQuery, setSearchQuery] = useState<string>('');
+
+    const placeholders: string[] = [
+        "Yellow wall panel with wooden texture...",
+        "Modern minimalist ceiling design...",
+        "Rustic brick wall with warm lighting...",
+        "Elegant marble flooring patterns...",
+        "Contemporary glass partition ideas..."
+    ];
+
+    const handleSearch = (): void => {
         console.log('Search:', searchQuery);
+        navigate('/SearchResultsPage')
     };
 
     return (
@@ -47,15 +104,24 @@ const FeaturedCard = () => {
                         <ArrowRight className="w-5 h-5" />
                     </div>
 
-                    {/* Search Input */}
+                    {/* Search Input with Animated Placeholder */}
                     <div className="relative w-full sm:w-[420px]">
-                        <input
-                            type="text"
-                            placeholder="Yellow wall panel with wooden texture..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white border border-white/30 rounded-full px-4 py-3 text-black placeholder-gray-400 text-xs pr-12"
-                        />
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                                className="w-full bg-white border border-white/30 rounded-full px-4 py-3 text-black text-xs pr-12"
+                            />
+                            {!searchQuery && (
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                    <AnimatedPlaceholder 
+                                        placeholders={placeholders}
+                                        className="text-gray-400 text-xs"
+                                    />
+                                </div>
+                            )}
+                        </div>
                         <button
                             onClick={handleSearch}
                             className="absolute right-2 top-1/2 -translate-y-1/2 bg-black rounded-full p-2"
@@ -219,21 +285,25 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                     let pointerEvents = 'none';
 
                     if (isActive) {
+                        // Active card at the top
                         zIndex = 30;
                         transform = 'translateY(0px) rotate(0deg) scale(1)';
                         opacity = 1;
                         pointerEvents = 'auto';
                     } else if (isNext) {
+                        // Next card slightly below and behind
                         zIndex = 20;
-                        transform = 'translateY(8px) rotate(3deg) scale(0.95)';
+                        transform = 'translateY(8px) rotate(2deg) scale(0.95)';
                         opacity = 0.8;
                         pointerEvents = 'none';
                     } else if (isPrev) {
+                        // Previous card further below and behind
                         zIndex = 10;
-                        transform = 'translateY(16px) rotate(-3deg) scale(0.9)';
+                        transform = 'translateY(16px) rotate(-2deg) scale(0.9)';
                         opacity = 0.6;
                         pointerEvents = 'none';
                     } else {
+                        // Other cards even further below
                         zIndex = 0;
                         transform = 'translateY(24px) rotate(0deg) scale(0.85)';
                         opacity = 0.4;
