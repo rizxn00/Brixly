@@ -75,7 +75,7 @@ export default function SearchResultsPage() {
                 </div>
             </div>
 
-            {/* Search Bar */}
+            {/* Search bar */}
             <div className="px-4 py-3 bg-white border-b border-gray-100">
                 <div className="flex items-center gap-3 md:max-w-screen-md md:mx-auto">
                     <ChevronLeft className="w-5 h-5 text-gray-600" onClick={goback} />
