@@ -53,6 +53,10 @@ export default function SearchResultsPage() {
             rating: 4.1
         }
     ];
+    const goback = (): void => {
+       
+        navigate('/')
+    };
 
     const goback = (): void => {
        
@@ -165,11 +169,9 @@ export default function SearchResultsPage() {
                                 <div className="bg-black px-3 pb-3 pt-2">
                                     <h3 className="text-white text-sm font-medium mb-1">{product.title}</h3>
                                     <p className="text-xs">
-  <span className="text-white">Brand - </span>
-  <span style={{ color: '#F8CC47' }}>{product.brand}</span>
-</p>
-
-
+                                      <span className="text-white">Brand - </span>
+                                      <span style={{ color: '#F8CC47' }}>{product.brand}</span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
