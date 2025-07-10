@@ -1,12 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Menu, Calendar, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, Calendar, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useSwipeable } from 'react-swipeable';
-
-// ===== COMPONENTS =====
 
 // Header Component
-const Header = () => {
+const Header: React.FC = () => {
     return (
         <header className="flex items-center justify-between p-4 bg-white">
             <Menu className="w-6 h-6 text-gray-700" />
@@ -18,12 +15,68 @@ const Header = () => {
     );
 };
 
-// Featured Card Component
-const FeaturedCard = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate();
+// Animated Placeholder Component
+interface AnimatedPlaceholderProps {
+    placeholders: string[];
+    className?: string;
+}
 
-    const handleSearch = () => {
+const AnimatedPlaceholder: React.FC<AnimatedPlaceholderProps> = ({ placeholders, className }) => {
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [displayText, setDisplayText] = useState<string>('');
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+    useEffect(() => {
+        const currentPlaceholder = placeholders[currentIndex];
+        const delay = isDeleting ? 50 : 100;
+
+        const timeout = setTimeout(() => {
+            if (!isDeleting) {
+                // Typing
+                if (displayText.length < currentPlaceholder.length) {
+                    setDisplayText(currentPlaceholder.substring(0, displayText.length + 1));
+                } else {
+                    // Finished typing, wait then start deleting
+                    setTimeout(() => setIsDeleting(true), 2000);
+                }
+            } else {
+                // Deleting
+                if (displayText.length > 0) {
+                    setDisplayText(displayText.substring(0, displayText.length - 1));
+                } else {
+                    // Finished deleting, move to next placeholder
+                    setIsDeleting(false);
+                    setCurrentIndex((prev) => (prev + 1) % placeholders.length);
+                }
+            }
+        }, delay);
+
+        return () => clearTimeout(timeout);
+    }, [displayText, isDeleting, currentIndex, placeholders]);
+
+    return (
+        <span className={className}>
+            {displayText}
+            <span className="animate-pulse text-gray-500">|</span>
+        </span>
+    );
+};
+
+// Featured Card Component
+const FeaturedCard: React.FC = () => {
+    const navigate = useNavigate();
+    const [searchQuery, setSearchQuery] = useState<string>('');
+
+    const placeholders: string[] = [
+        "Yellow wall panel with wooden texture...",
+        "Modern minimalist ceiling design...",
+        "Rustic brick wall with warm lighting...",
+        "Elegant marble flooring patterns...",
+        "Contemporary glass partition ideas..."
+    ];
+  
+    const handleSearch = (): void => {
+        console.log('Search:', searchQuery);
         navigate('/SearchResultsPage');
     };
 
@@ -51,15 +104,24 @@ const FeaturedCard = () => {
                         <ArrowRight className="w-5 h-5" />
                     </div>
 
-                    {/* Search Input */}
+                    {/* Search Input with Animated Placeholder */}
                     <div className="relative w-full sm:w-[420px]">
-                        <input
-                            type="text"
-                            placeholder="Yellow wall panel with wooden texture..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-white border border-white/30 rounded-full px-4 py-3 text-black placeholder-gray-400 text-xs pr-12"
-                        />
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                                className="w-full bg-white border border-white/30 rounded-full px-4 py-3 text-black text-xs pr-12"
+                            />
+                            {!searchQuery && (
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                    <AnimatedPlaceholder 
+                                        placeholders={placeholders}
+                                        className="text-gray-400 text-xs"
+                                    />
+                                </div>
+                            )}
+                        </div>
                         <button
                             onClick={handleSearch}
                             className="absolute right-2 top-1/2 -translate-y-1/2 bg-black rounded-full p-2"
@@ -73,17 +135,17 @@ const FeaturedCard = () => {
     );
 };
 
-// Inspiration Card Component
-interface InspirationCardProps {
+// Individual Card Component
+interface CardProps {
     title: string;
     brand: string;
     product: string;
     onKnowMore: () => void;
 }
 
-const InspirationCard: React.FC<InspirationCardProps> = ({ title, brand, product, onKnowMore }) => {
+const Card: React.FC<CardProps> = ({ title, brand, product, onKnowMore }) => {
     return (
-        <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg z-10">
+        <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg">
             <div className="flex">
                 {/* Left side - Content */}
                 <div className="w-1/2 bg-black text-white p-6 flex flex-col justify-between min-h-[240px]">
@@ -138,12 +200,159 @@ const InspirationCard: React.FC<InspirationCardProps> = ({ title, brand, product
     );
 };
 
+// Card Stack Component
+interface CardStackProps {
+    cards: Array<{
+        id: number;
+        title: string;
+        brand: string;
+        product: string;
+    }>;
+    onKnowMore: (title: string) => void;
+}
+
+const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [touchStart, setTouchStart] = useState(0);
+    const [touchEnd, setTouchEnd] = useState(0);
+
+    const nextCard = () => {
+        setCurrentIndex((prev) => (prev + 1) % cards.length);
+    };
+
+    const prevCard = () => {
+        setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > 50;
+        const isRightSwipe = distance < -50;
+
+        if (isLeftSwipe) {
+            nextCard();
+        } else if (isRightSwipe) {
+            prevCard();
+        }
+    };
+
+    return (
+        <div className="relative max-w-md mx-auto">
+            {/* Navigation buttons */}
+            <div className="flex justify-between items-center mb-4">
+                <button
+                    onClick={prevCard}
+                    className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-sm text-gray-600">
+                    {currentIndex + 1} / {cards.length}
+                </span>
+                <button
+                    onClick={nextCard}
+                    className="bg-gray-800 text-white p-2 rounded-full hover:bg-gray-700 transition-colors"
+                >
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+            </div>
+
+            {/* Card Stack */}
+            <div 
+                className="relative h-[280px] select-none"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
+                {cards.map((card, index) => {
+                    const isActive = index === currentIndex;
+                    const isNext = index === (currentIndex + 1) % cards.length;
+                    const isPrev = index === (currentIndex - 1 + cards.length) % cards.length;
+                    
+                    let zIndex = 0;
+                    let transform = '';
+                    let opacity = 0;
+                    let pointerEvents = 'none';
+
+                    if (isActive) {
+                        // Active card at the top
+                        zIndex = 30;
+                        transform = 'translateY(0px) rotate(0deg) scale(1)';
+                        opacity = 1;
+                        pointerEvents = 'auto';
+                    } else if (isNext) {
+                        // Next card slightly below and behind
+                        zIndex = 20;
+                        transform = 'translateY(8px) rotate(2deg) scale(0.95)';
+                        opacity = 0.8;
+                        pointerEvents = 'none';
+                    } else if (isPrev) {
+                        // Previous card further below and behind
+                        zIndex = 10;
+                        transform = 'translateY(16px) rotate(-2deg) scale(0.9)';
+                        opacity = 0.6;
+                        pointerEvents = 'none';
+                    } else {
+                        // Other cards even further below
+                        zIndex = 0;
+                        transform = 'translateY(24px) rotate(0deg) scale(0.85)';
+                        opacity = 0.4;
+                        pointerEvents = 'none';
+                    }
+
+                    return (
+                        <div
+                            key={card.id}
+                            className="absolute inset-0 transition-all duration-500 ease-out"
+                            style={{
+                                zIndex,
+                                transform,
+                                opacity,
+                                pointerEvents: pointerEvents as React.CSSProperties['pointerEvents'],
+                            }}
+                        >
+                            <Card
+                                title={card.title}
+                                brand={card.brand}
+                                product={card.product}
+                                onKnowMore={() => onKnowMore(card.title)}
+                            />
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Dots indicator */}
+            <div className="flex justify-center mt-6 space-x-2">
+                {cards.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => setCurrentIndex(index)}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                            index === currentIndex ? 'bg-gray-800' : 'bg-gray-300'
+                        }`}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
+
 // Daily Inspiration Section Component
 const DailyInspirationSection = () => {
-    const navigate = useNavigate();
-    const [currentIndex, setCurrentIndex] = useState(0);
-
     // Dummy data for inspiration cards
+    const navigate = useNavigate();
+
     const inspirationData = [
         {
             id: 1,
@@ -169,97 +378,26 @@ const DailyInspirationSection = () => {
             brand: 'Artisan Crafts',
             product: 'Stone Wave',
         },
+        {
+            id: 5,
+            title: 'Glass Panel Walls',
+            brand: 'Crystal Designs',
+            product: 'Clear Vision',
+        },
     ];
-
-    // Duplicate data for infinite loop
-    const extendedData = [...inspirationData, ...inspirationData];
 
     const handleKnowMore = (title: string) => {
         console.log(`Know more clicked for: ${title}`);
         navigate('/product-detail');
     };
 
-    // Swipe handlers
-    const handlers = useSwipeable({
-        onSwipedLeft: () => {
-            setCurrentIndex((prev) => prev + 1);
-        },
-        onSwipedRight: () => {
-            setCurrentIndex((prev) => prev - 1);
-        },
-        trackMouse: true,
-    });
-
-    // Handle infinite loop logic
-    useEffect(() => {
-        if (currentIndex >= inspirationData.length) {
-            setTimeout(() => {
-                setCurrentIndex(currentIndex - inspirationData.length);
-            }, 500); // Match transition duration
-        } else if (currentIndex < 0) {
-            setTimeout(() => {
-                setCurrentIndex(currentIndex + inspirationData.length);
-            }, 500);
-        }
-    }, [currentIndex, inspirationData.length]);
-
     return (
         <div className="px-4">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Daily Inspiration</h2>
-
-            {/* Swipeable Card Container */}
-            <div className="relative max-w-4xl mx-auto overflow-hidden text-xs" {...handlers}>
-                <div
-                    className="flex transition-transform duration-500 ease-in-out"
-                    style={{
-                        transform: `translateX(-${(currentIndex % inspirationData.length) * (window.innerWidth >= 640 ? 50 : 100)}%)`,
-                    }}
-                >
-                    {extendedData.map((item, index) => (
-                        <div
-                            key={`${item.id}-${index}`}
-                            className="w-full sm:w-1/2 flex-shrink-0 px-2 relative text-xs"
-                        >
-                            {/* Stack effect background cards */}
-                            <div
-                                className="absolute inset-0 bg-gray-200 rounded-2xl z-0 text-xs"
-                                style={{
-                                    transform: 'translateY(-12px) rotate(-3deg) scale(0.98)',
-                                    opacity: 0.3,
-                                }}
-                            ></div>
-                            <div
-                                className="absolute inset-0 bg-gray-300 rounded-2xl z-0 text-xs"
-                                style={{
-                                    transform: 'translateY(-6px) rotate(3deg) scale(0.99)',
-                                    opacity: 0.5,
-                                }}
-                            ></div>
-
-                            {/* Main card with animation */}
-                            <div
-                                className="relative z-10 transition-transform duration-500 ease-in-out text-xs"
-                                style={{
-                                    transform: currentIndex % inspirationData.length === index % inspirationData.length ? 'scale(1)' : 'scale(0.95)',
-                                    opacity: currentIndex % inspirationData.length === index % inspirationData.length ? 1 : 0.8,
-                                }}
-                            >
-                                <InspirationCard
-                                    title={item.title}
-                                    brand={item.brand}
-                                    product={item.product}
-                                    onKnowMore={() => handleKnowMore(item.title)}
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <CardStack cards={inspirationData} onKnowMore={handleKnowMore} />
         </div>
     );
 };
-
-// ===== PAGES =====
 
 // Home Page Component
 const HomePage = () => {
@@ -274,8 +412,7 @@ const HomePage = () => {
     );
 };
 
-// ===== MAIN APP =====
-
+// Main App
 function App() {
     return (
         <div className="App">
