@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { Menu, ChevronDown, ChevronUp, MoreHorizontal, X } from 'lucide-react';
 
+type SectionType = 'size' | 'material' | 'info' | null;
+
 export default function WoodenTileProductPage() {
     const [expandedSection, setExpandedSection] = useState(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -14,7 +16,7 @@ export default function WoodenTileProductPage() {
         'https://images.unsplash.com/photo-1618221710640-bff7203d1bdb?w=1200&h=800&fit=crop'
     ];
 
-    const toggleSection = (section) => {
+    const toggleSection = (section: SectionType) => {
         setExpandedSection(expandedSection === section ? null : section);
     };
 

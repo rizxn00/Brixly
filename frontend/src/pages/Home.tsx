@@ -304,7 +304,6 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                     let transform: string = '';
                     let opacity: number = 0;
                     let pointerEvents: 'auto' | 'none' = 'none';
-                    let transition: string = 'all 0.5s ease-out';
 
                     if (isActive) {
                         zIndex = 30;
