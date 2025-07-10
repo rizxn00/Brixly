@@ -53,13 +53,7 @@ export default function SearchResultsPage() {
             rating: 4.1
         }
     ];
-    const goback = (): void => {
-       
-        navigate('/')
-    };
-
-    const goback = (): void => {
-       
+    const goBack = (): void => { 
         navigate('/')
     };
 
@@ -75,10 +69,10 @@ export default function SearchResultsPage() {
                 </div>
             </div>
 
-            {/* Search Bar */}
+            {/* Search bar */}
             <div className="px-4 py-3 bg-white border-b border-gray-100">
                 <div className="flex items-center gap-3 md:max-w-screen-md md:mx-auto">
-                    <ChevronLeft className="w-5 h-5 text-gray-600" onClick={goback} />
+                    <ChevronLeft className="w-5 h-5 text-gray-600" onClick={goBack} />
                     <div className="flex-1 relative">
                         <div className="animated-border rounded-full">
                             <div className="flex items-center bg-white rounded-full px-4 py-2">
