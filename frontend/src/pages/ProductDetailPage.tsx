@@ -1,15 +1,17 @@
-import { useState, useRef } from 'react';
-import { Menu, ChevronDown, ChevronUp, MoreHorizontal, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Menu, ChevronDown, ChevronUp, MoreHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type SectionType = 'size' | 'material' | 'info' | null;
 
 export default function WoodenTileProductPage() {
-    const [expandedSection, setExpandedSection] = useState(null);
+    const [expandedSection, setExpandedSection] = useState<SectionType>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const lastTap = useRef(0);
     const touchStartX = useRef(0);
     const touchEndX = useRef(0);
+
+    const navigate = useNavigate();
 
     const images = [
         'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&h=800&fit=crop',
@@ -28,45 +30,66 @@ export default function WoodenTileProductPage() {
         setIsPreviewOpen(false);
     };
 
-    const handleTouchStart = (e) => {
+    // Handle ESC key to close preview
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && isPreviewOpen) {
+                closePreview();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isPreviewOpen]);
+
+    const goToPrevious = () => {
+        setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    };
+
+    const goToNext = () => {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent) => {
         touchStartX.current = e.changedTouches[0].screenX;
     };
 
-    const handleTouchMove = (e) => {
+    const handleTouchMove = (e: React.TouchEvent) => {
         touchEndX.current = e.changedTouches[0].screenX;
     };
 
     const handleTouchEnd = () => {
         const swipeDistance = touchEndX.current - touchStartX.current;
         const SWIPE_THRESHOLD = 50;
+        
+        // Ignore taps (small movements) to prevent image navigation on tap
+        if (Math.abs(swipeDistance) < SWIPE_THRESHOLD) {
+            // Allow the onClick handler (handleImageClick) to handle the tap
+            return;
+        }
+        
+        // Handle swipe navigation
         if (swipeDistance > SWIPE_THRESHOLD) {
-            setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+            goToPrevious();
         } else if (swipeDistance < -SWIPE_THRESHOLD) {
-            setCurrentImageIndex((prev) => (prev + 1) % images.length);
+            goToNext();
         }
     };
 
-    const handleImageClick = (event) => {
-        const now = new Date().getTime();
-        const DOUBLE_TAP_DELAY = 300;
-        if (now - lastTap.current < DOUBLE_TAP_DELAY) {
-            openPreview();
-        } else {
-            const rect = event.currentTarget.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const imageWidth = rect.width;
-            if (clickX < imageWidth / 2) {
-                setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-            } else {
-                setCurrentImageIndex((prev) => (prev + 1) % images.length);
-            }
-        }
-        lastTap.current = now;
+    const handleImageClick = () => {
+        // Single tap or click opens the preview
+        openPreview();
     };
 
     const handleMoreOptionsClick = () => {
         console.log('More options clicked');
     };
+
+    const handleContact = () => {
+        navigate('/dealers-list');
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -101,6 +124,27 @@ export default function WoodenTileProductPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent 
                                   opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
+                    {/* Desktop Navigation Buttons */}
+                    <button
+                        onClick={goToPrevious}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm 
+                                 rounded-full p-2 shadow-lg hover:bg-white hover:scale-110 transition-all duration-300 
+                                 border border-white/20 hidden md:block z-10"
+                        title="Previous image"
+                    >
+                        <ChevronLeft className="w-5 h-5 text-gray-600" />
+                    </button>
+                    
+                    <button
+                        onClick={goToNext}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm 
+                                 rounded-full p-2 shadow-lg hover:bg-white hover:scale-110 transition-all duration-300 
+                                 border border-white/20 hidden md:block z-10"
+                        title="Next image"
+                    >
+                        <ChevronRight className="w-5 h-5 text-gray-600" />
+                    </button>
+
                     {/* Image Indicators */}
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
                         {images.map((_, index) => (
@@ -119,7 +163,7 @@ export default function WoodenTileProductPage() {
                         onClick={handleMoreOptionsClick}
                         className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg 
                                  hover:bg-white hover:scale-110 transition-all duration-300 z-10
-                                 border border-white/20"
+                                 border border-white/20 md:bottom-16"
                         title="More options"
                     >
                         <MoreHorizontal className="w-5 h-5 text-gray-600" />
@@ -139,16 +183,36 @@ export default function WoodenTileProductPage() {
                             <img
                                 src={images[currentImageIndex]}
                                 alt={`Wooden Tile Preview ${currentImageIndex + 1}`}
-                                className="w-full h-auto max-h-[85vh] object-contain shadow-2xl cursor-pointer 
+                                className="w-full h-auto max-h-[85vh] object-contain shadow-2xl 
                                          transition-all duration-500 ease-out
                                          group-hover:scale-105 transform-gpu"
-                                onClick={handleImageClick}
                                 onTouchStart={handleTouchStart}
                                 onTouchMove={handleTouchMove}
                                 onTouchEnd={handleTouchEnd}
                                 draggable={false}
                             />
                         </div>
+
+                        {/* Desktop Navigation Buttons in Preview */}
+                        <button
+                            onClick={goToPrevious}
+                            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm 
+                                     rounded-full p-3 shadow-lg hover:bg-white hover:scale-110 transition-all duration-300 
+                                     border border-white/20 hidden md:block"
+                            title="Previous image"
+                        >
+                            <ChevronLeft className="w-6 h-6 text-gray-600" />
+                        </button>
+                        
+                        <button
+                            onClick={goToNext}
+                            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 backdrop-blur-sm 
+                                     rounded-full p-3 shadow-lg hover:bg-white hover:scale-110 transition-all duration-300 
+                                     border border-white/20 hidden md:block"
+                            title="Next image"
+                        >
+                            <ChevronRight className="w-6 h-6 text-gray-600" />
+                        </button>
 
                         <button
                             onClick={closePreview}
@@ -295,7 +359,7 @@ export default function WoodenTileProductPage() {
 
                 {/* Buttons */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button className="w-full bg-yellow-400 text-white py-4 rounded-full font-semibold 
+                    <button onClick={handleContact} className="w-full bg-yellow-400 text-white py-4 rounded-full font-semibold 
                                      hover:bg-yellow-500 hover:scale-105 transition-all duration-300 
                                      text-base shadow-lg hover:shadow-xl">
                         Contact Dealer
