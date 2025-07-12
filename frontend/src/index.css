@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+.touch-action-none {
+  touch-action: none;
+}
+.touch-action-auto {
+  touch-action: auto;
+}
