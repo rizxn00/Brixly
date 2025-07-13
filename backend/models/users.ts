@@ -8,6 +8,8 @@ export interface IUser extends Document {
   lastname: string;
   password: string;
   isAdmin: boolean;
+  googleId?: string;
+  provider?: 'local' | 'google';
   isVerified?: boolean;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
@@ -22,6 +24,8 @@ const UserSchema = new Schema<IUser>({
   lastname: { type: String, required: true },
   password: { type: String, required: false },
   isAdmin: { type: Boolean, default: false },
+  googleId: { type: String, sparse: true },
+  provider: { type: String, enum: ['local', 'google'], default: 'local' },
   isVerified: { type: Boolean, default: false },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
