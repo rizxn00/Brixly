@@ -70,11 +70,40 @@ const FeaturedCard: React.FC = () => {
     'Elegant marble flooring patterns...',
     'Contemporary glass partition ideas...',
   ];
-
-  const handleSearch = (): void => {
+const handleSearch = async (): Promise<void> => {
+  try {
     console.log('Search:', searchQuery);
-    navigate('/SearchResultsPage');
-  };
+    
+    // Make API call to search endpoint
+    const response = await fetch('http://localhost:8000/api/products/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: searchQuery, // or whatever field name your backend expects
+        // Add other search parameters if needed
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const searchResults = await response.json();
+    console.log('Search results:', searchResults);
+    navigate('/SearchResultsPage', { 
+      state: { 
+        results: searchResults,
+        query: searchQuery 
+      } 
+    });
+    
+  } catch (error) {
+    console.error('Search failed:', error);
+    // Handle error - maybe show a toast notification or error message
+  }
+};
 
   return (
     <div className="mx-4 mb-6">
