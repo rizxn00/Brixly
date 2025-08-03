@@ -191,24 +191,65 @@ export const searchProductsPrompt = async (req: Request, res: Response): Promise
       return res.status(400).json({ status: 'error', message: 'Invalid or missing prompt' });
     }
 
-    const results = await ProductModel.aggregate([
+    // Search products
+    const productResults = await ProductModel.aggregate([
       {
         $search: {
           index: 'default',
           text: {
             query: prompt,
-            path: ['name', 'description','category'],
+            path: ['name', 'description', 'category'],
             fuzzy: { maxEdits: 1 }
           }
         }
       },
-      { $limit: 20 }
+      {
+        $addFields: {
+          type: 'product' // Add a field to identify the result type
+        }
+      },
+      { $limit: 10 } // Reduced limit to accommodate both collections
     ]);
 
-    return res.json({ status: 'success', results });
+    // Search brands (assuming you have a BrandModel)
+    // const brandResults = await BrandModel.aggregate([
+    //   {
+    //     $search: {
+    //       index: 'brands', 
+    //       text: {
+    //         query: prompt,
+    //         path: ['name', 'description'], // Adjust fields based on your brand schema
+    //         fuzzy: { maxEdits: 1 }
+    //       }
+    //     }
+    //   },
+    //   {
+    //     $addFields: {
+    //       type: 'brand' // Add a field to identify the result type
+    //     }
+    //   },
+    //   { $limit: 10 }
+    // ]);
+
+    // Combine results
+    const combinedResults = [
+      ...productResults,
+    //   ...brandResults
+    ];
+    return res.json({ 
+      status: 'success', 
+      results: combinedResults,
+      summary: {
+        products: productResults.length,
+        // brands: brandResults.length,
+        total: combinedResults.length
+      }
+    });
+
   } catch (error: any) {
     console.error('Search failed:', error);
     return res.status(500).json({ status: 'error', message: 'Search failed', error: error.message });
   }
+
 };
 

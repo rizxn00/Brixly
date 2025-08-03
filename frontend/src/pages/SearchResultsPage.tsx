@@ -370,7 +370,7 @@ export default function SearchResultsPage() {
                                         <div className="animated-image-border rounded-lg">
                                             <div className={`${product.bgColor || getRandomBgColor()} aspect-square relative overflow-hidden rounded-lg`}>
                                                 <img
-                                                    src={product.image}
+                                                    src={product.images[0] || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"}
                                                     alt={product.title}
                                                     className="w-full h-full object-cover rounded-lg"
                                                     // onError={(e) => {
@@ -382,7 +382,7 @@ export default function SearchResultsPage() {
                                                         {product.currency === 'INR' ? '₹' : '$'}{product.price}
                                                     </div>
                                                 )}
-                                                {!product.isAvailable && (
+                                                {!product.isAvailable && product.type == "product" && (
                                                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                                                         <span className="text-white text-sm font-medium">Out of Stock</span>
                                                     </div>
@@ -402,11 +402,13 @@ export default function SearchResultsPage() {
                                         </div>
                                     </div>
                                     <div className="bg-black px-3 pb-3 pt-2">
-                                        <h3 className="text-white text-sm font-medium mb-1 line-clamp-2">{product.title}</h3>
+                                        <h3 className="text-white text-sm font-medium mb-1 line-clamp-2">{product.name}</h3>
+                                        {product.type =="product" &&(
                                         <p className="text-xs">
                                             <span className="text-white">Brand - </span>
-                                            <span style={{ color: '#F8CC47' }}>{product.brand}</span>
+                                            <span style={{ color: '#F8CC47' }}>{product.brandName}</span>
                                         </p>
+                                            )}
                                         {product.category && (
                                             <p className="text-xs text-gray-400 mt-1">{product.category}</p>
                                         )}

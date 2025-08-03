@@ -464,7 +464,7 @@ export default function ProductDetailPage() {
             <div className="relative max-w-7xl mx-auto">
                 <div className="relative overflow-hidden rounded-b-lg group">
                     <img
-                        src={images[currentImageIndex]}
+                        src={images[currentImageIndex] || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop'}
                         alt={`${product.title} ${currentImageIndex + 1}`}
                         className="w-full h-80 md:h-96 object-cover cursor-pointer group-hover:scale-110 transition-all"
                         onClick={openPreview}
@@ -495,7 +495,7 @@ export default function ProductDetailPage() {
                 <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50" onClick={closePreview}>
                     <div className="relative max-w-5xl w-full p-4" onClick={(e) => e.stopPropagation()}>
                         <img
-                            src={images[currentImageIndex]}
+                            src={images[currentImageIndex] || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"}
                             alt={`Preview ${currentImageIndex + 1}`}
                             className="w-full max-h-[85vh] object-contain"
                             onTouchStart={handleTouchStart}
