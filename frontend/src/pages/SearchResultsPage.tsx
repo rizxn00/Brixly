@@ -185,7 +185,7 @@ export default function SearchResultsPage() {
     const location = useLocation();
     const [products, setProducts] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const isLoading = false; 
 
     // Get data from navigation state
     useEffect(() => {

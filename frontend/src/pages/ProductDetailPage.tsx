@@ -377,7 +377,7 @@
 
 
 import { useState, useRef, useEffect } from 'react';
-import { Menu, ChevronDown, ChevronUp, MoreHorizontal, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Menu, ChevronDown, ChevronUp,  X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 type SectionType = 'size' | 'material' | 'info' | null;
