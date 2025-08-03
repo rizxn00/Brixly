@@ -29,6 +29,7 @@ const AnimatedPlaceholder: React.FC<AnimatedPlaceholderProps> = ({ placeholders,
   React.useEffect(() => {
     const currentPlaceholder = placeholders[currentIndex];
     const delay = isDeleting ? 50 : 100;
+    
 
     const timeout = setTimeout(() => {
       if (!isDeleting) {
