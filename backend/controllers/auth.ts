@@ -9,6 +9,9 @@ import {
   revokeAllUserRefreshTokens
 } from "../services/tokenService";
 import { generateVerificationToken, setTokenCookies, clearTokenCookies } from "../utils/tokenHelpers"
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const register = async (
   req: Request,
@@ -111,6 +114,93 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     return res
       .status(500)
       .json({ status: "error", message: "Internal server error" });
+  }
+};
+
+export const googleLogin = async (req: Request, res: Response): Promise<Response> => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    return res.status(400).json({
+      status: "error",
+      message: "Google credential is required"
+    });
+  }
+
+  try {
+    // Verify Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.email) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid Google token"
+      });
+    }
+
+    const { email, given_name, family_name, sub: googleId, name } = payload;
+
+    // Check if user exists
+    let user = await UserModel.findOne({
+      $or: [
+        { email, provider: 'google' },
+        { googleId }
+      ]
+    });
+
+    if (!user) {
+      // Create new user
+      user = await UserModel.create({
+        username: name || `${given_name}_${family_name}`,
+        email,
+        firstname: given_name || 'Default',
+        lastname: family_name || 'User',
+        password: '',
+        googleId,
+        provider: 'google',
+        isEmailVerified: true,
+        isAdmin: false,
+      });
+    } else if (!user.googleId) {
+      user.googleId = googleId;
+      user.provider = 'google';
+      user.isVerified = true;
+      await user.save();
+    }
+
+    // Generate tokens
+    const tokens = await generateTokens({
+      id: user.id.toString(),
+      email: user.email,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    });
+
+    // Set cookies
+    setTokenCookies(res, tokens.accessToken, tokens.refreshToken);
+
+    return res.status(200).json({
+      status: "success",
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        isAdmin: user.isAdmin,
+        provider: user.provider,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "Google authentication failed"
+    });
   }
 };
 

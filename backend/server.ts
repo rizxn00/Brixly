@@ -8,6 +8,8 @@ import morgan from 'morgan';
 
 import health from './routers/health';
 import auth from './routers/auth';
+import brands from './routers/brands';
+import products from './routers/product';
 
 dotenv.config();
 
@@ -35,5 +37,8 @@ mongoose
 
 app.use('/health', health);
 app.use('/api/auth', auth);
+app.use('/api/brands', brands)
+app.use('/api/products', products);
+
 
 app.listen(PORT, () => console.log(`Listening on: ${PORT}`));
