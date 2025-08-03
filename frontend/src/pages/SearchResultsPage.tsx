@@ -370,7 +370,7 @@ export default function SearchResultsPage() {
                                         <div className="animated-image-border rounded-lg">
                                             <div className={`${product.bgColor || getRandomBgColor()} aspect-square relative overflow-hidden rounded-lg`}>
                                                 <img
-                                                    src={product.images[0] || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"}
+                                                    src={product.images?.[0] || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop"}
                                                     alt={product.title}
                                                     className="w-full h-full object-cover rounded-lg"
                                                     // onError={(e) => {
