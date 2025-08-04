@@ -198,7 +198,7 @@ export const searchProductsPrompt = async (req: Request, res: Response): Promise
           index: 'default',
           text: {
             query: prompt,
-            path: ['name', 'description', 'category','brandName'],
+            path: ['name', 'description', 'category','brandName','specifications','materialUsed','applicationAreas'],
             fuzzy: { maxEdits: 1 }
           }
         }
