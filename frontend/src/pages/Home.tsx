@@ -74,9 +74,11 @@ const FeaturedCard: React.FC = () => {
 const handleSearch = async (): Promise<void> => {
   try {
     console.log('Search:', searchQuery);
+
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     
     // Make API call to search endpoint
-    const response = await fetch('http://localhost:8000/api/products/search', {
+    const response = await fetch(`${API_BASE_URL}/products/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
