@@ -5,13 +5,14 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import path from 'path';
 
 import health from './routers/health';
 import auth from './routers/auth';
 import brands from './routers/brands';
 import products from './routers/product';
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app: Application = express();
 const PORT: number = parseInt(process.env.PORT || '8000', 10);
