@@ -12,7 +12,7 @@ import auth from './routers/auth';
 import brands from './routers/brands';
 import products from './routers/product';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const app: Application = express();
 const PORT: number = parseInt(process.env.PORT || '8000', 10);
