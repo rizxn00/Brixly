@@ -398,6 +398,7 @@ export default function ProductDetailPage() {
         if (!product) {
             navigate('/');
         }
+        console.log('Product data:', product);
     }, [product, navigate]);
 
     if (!product) {
@@ -543,30 +544,43 @@ export default function ProductDetailPage() {
                 </div>
 
                 {/* Expandable Sections */}
-                <div className="space-y-6 mb-10">
-                    {/* Replace this with dynamic attributes if available */}
-                    <ExpandableSection
-                        title="Product Size"
-                        content={["Available sizes: 600x600mm, 800x800mm", "Thickness: 8mm, 10mm, 12mm"]}
-                        section="size"
-                        expandedSection={expandedSection}
-                        toggleSection={toggleSection}
-                    />
-                    <ExpandableSection
-                        title="Material Used"
-                        content={["Engineered wood", "Water-resistant coating", "Slip-resistant finish"]}
-                        section="material"
-                        expandedSection={expandedSection}
-                        toggleSection={toggleSection}
-                    />
-                    <ExpandableSection
-                        title="More Info"
-                        content={["Made in India", "5 year warranty", "Easy maintenance"]}
-                        section="info"
-                        expandedSection={expandedSection}
-                        toggleSection={toggleSection}
-                    />
-                </div>
+               <div className="space-y-6 mb-10">
+    {/* Dynamic Product Size from specifications */}
+    <ExpandableSection
+        title="Product Size"
+        content={product.specifications || ["Size information not available"]}
+        section="size"
+        expandedSection={expandedSection}
+        toggleSection={toggleSection}
+    />
+    
+    {/* Dynamic Material Used */}
+    <ExpandableSection
+        title="Material Used"
+        content={product.materialUsed || ["Material information not available"]}
+        section="material"
+        expandedSection={expandedSection}
+        toggleSection={toggleSection}
+    />
+    
+    {/* More Info - can be a combination of other product fields */}
+    <ExpandableSection
+        title="More Info"
+        content={[
+            `Installation: ${product.installationType || 'Not specified'}`,
+            `Status: ${product.status || 'Not specified'}`,
+            `Product Quality: ${product.productQuality ? 'Premium' : 'Standard'}`,
+            `Application Areas: ${product.applicationAreas ? product.applicationAreas.join(', ') : 'Not specified'}`,
+            ...(product.keywords && product.keywords.length > 0 
+                ? [`Keywords: ${product.keywords.join(', ')}`] 
+                : [])
+        ]}
+        section="info"
+        expandedSection={expandedSection}
+        toggleSection={toggleSection}
+    />
+</div>
+
 
                 {/* Buttons */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
