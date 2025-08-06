@@ -4,7 +4,8 @@ import {
   getAllProducts,
   getProductById,
   uploadProductsExcel,
-  searchProductsPrompt
+  searchProductsPrompt,
+  updateProductImagesExcel
 } from '../controllers/product';
 
 
@@ -30,6 +31,10 @@ router.get('/get/:id', async (req: Request, res: Response) => {
 router.post('/upload/excel', upload.single('file'), async (req: Request, res: Response) => {
   await uploadProductsExcel(req, res);
 });;
+
+router.post('/upload/images', upload.single('file'), async (req: Request, res: Response) => {
+  await updateProductImagesExcel(req, res);
+});
 
 router.post('/search', async (req: Request, res: Response) => {
   await searchProductsPrompt(req, res);

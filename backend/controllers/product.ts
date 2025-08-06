@@ -117,6 +117,110 @@ export const uploadProductsExcel = async (req: Request, res: Response): Promise<
 
 };
 
+// Update Product Images from Excel using Brand Name
+export const updateProductImagesExcel = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        if (!req.file || !req.file.buffer) {
+            return res.status(400).json({ status: 'error', message: 'No file uploaded' });
+        }
+
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+
+        const updatedProducts: any[] = [];
+        const errors: any[] = [];
+
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i] as any;
+            
+            try {
+                // Validate required fields
+                if (!row.brandName || !row['Photo link']) {
+                    errors.push({ 
+                        row: i + 2, 
+                        error: 'Brand name and Photo link are required' 
+                    });
+                    continue;
+                }
+
+                const photoLink = row['Photo link'].trim();
+                const brandName = row.brandName.trim();
+
+                // Find products directly by brandName field (case-insensitive)
+                const products = await ProductModel.find({ 
+                    brandName: new RegExp(`^${brandName}$`, 'i') 
+                });
+
+                if (products.length === 0) {
+                    errors.push({ 
+                        row: i + 2, 
+                        error: `No products found with brand name '${brandName}'` 
+                    });
+                    continue;
+                }
+
+                let updatedCount = 0;
+
+                // Update images for all products with this brand name
+                for (const product of products) {
+                    let isModified = false;
+
+                    // Check if image already exists to avoid duplicates
+                    if (!product.images.includes(photoLink)) {
+                        product.images.push(photoLink);
+                        isModified = true;
+                    }
+                    
+                    // Set as thumbnail if none exists
+                    if (!product.thumbnailImage) {
+                        product.thumbnailImage = photoLink;
+                        isModified = true;
+                    }
+                    
+                    if (isModified) {
+                        await product.save();
+                        updatedCount++;
+                    }
+                }
+
+                updatedProducts.push({
+                    brandName: brandName,
+                    photoLink: photoLink,
+                    totalProducts: products.length,
+                    productsUpdated: updatedCount
+                });
+
+            } catch (err: any) {
+                errors.push({ 
+                    row: i + 2, 
+                    error: `Error processing row: ${err.message}` 
+                });
+            }
+        }
+
+        return res.json({
+            status: 'success',
+            message: `Images updated for ${updatedProducts.length} brand entries`,
+            data: {
+                processed: updatedProducts.length,
+                errors: errors.length,
+                updatedBrands: updatedProducts,
+                errorDetails: errors
+            }
+        });
+
+    } catch (error: any) {
+        return res.status(500).json({ 
+            status: 'error', 
+            message: 'Error updating product images', 
+            error: error.message 
+        });
+    }
+};
+
+
+
 // export const searchProductsPrompt = async (req: Request, res: Response): Promise<Response> => {
 //     try {
 //         const prompt = req.body.prompt?.toLowerCase();
@@ -191,13 +295,67 @@ export const searchProductsPrompt = async (req: Request, res: Response): Promise
       return res.status(400).json({ status: 'error', message: 'Invalid or missing prompt' });
     }
 
-    // Search products
+    // More comprehensive stop words list
+    const stopWords = new Set([
+      'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 
+      'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 'will', 
+      'with', 'would', 'or', 'but', 'if', 'then', 'else', 'when', 'where', 'why', 
+      'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 
+      'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 
+      'very', 'can', 'will', 'just', 'should', 'now', 'am', 'i', 'me', 'my', 
+      'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 
+      'yourself', 'yourselves', 'him', 'his', 'himself', 'she', 'her', 'hers', 
+      'herself', 'they', 'them', 'their', 'theirs', 'themselves', 'this', 'these',
+      'those', 'what', 'which', 'who', 'whom', 'whose', 'been', 'being', 'have',
+      'had', 'having', 'do', 'does', 'did', 'doing', 'get', 'got', 'getting'
+    ]);
+
+    // Function to check if a word is meaningful
+    const isMeaningfulWord = (word: string): boolean => {
+      // Remove punctuation and check length
+      const cleanWord = word.replace(/[^\w]/g, '');
+      return cleanWord.length >= 2 && !stopWords.has(cleanWord);
+    };
+
+    // Split prompt and filter meaningful words
+    const words = prompt.split(/\s+/).filter((word:any) => word.length > 0);
+    const meaningfulWords = words.filter(isMeaningfulWord);
+
+    // Check if we have meaningful content
+    if (meaningfulWords.length === 0) {
+      return res.json({ 
+        status: 'success', 
+        results: [],
+        message: 'Please provide more specific search terms related to products.',
+        summary: {
+          products: 0,
+          total: 0
+        }
+      });
+    }
+
+    // Reconstruct search query with meaningful words
+    const searchQuery = meaningfulWords.join(' ');
+
+    // Additional validation for minimum search quality
+    if (searchQuery.length < 2) {
+      return res.status(400).json({ 
+        status: 'error', 
+        message: 'Search query too short after filtering common words.' 
+      });
+    }
+
+    // console.log('Original prompt:', prompt);
+    // console.log('Filtered search query:', searchQuery);
+    // console.log('Meaningful words found:', meaningfulWords.length);
+
+    // Search products with filtered query
     const productResults = await ProductModel.aggregate([
       {
         $search: {
           index: 'default',
           text: {
-            query: prompt,
+            query: searchQuery,
             path: ['name', 'description', 'category','brandName','specifications','materialUsed','applicationAreas'],
             fuzzy: { maxEdits: 1 }
           }
@@ -205,43 +363,24 @@ export const searchProductsPrompt = async (req: Request, res: Response): Promise
       },
       {
         $addFields: {
-          type: 'product' // Add a field to identify the result type
+          type: 'product'
         }
       },
-      { $limit: 10 } // Reduced limit to accommodate both collections
+      { $limit: 10 }
     ]);
 
-    // Search brands (assuming you have a BrandModel)
-    // const brandResults = await BrandModel.aggregate([
-    //   {
-    //     $search: {
-    //       index: 'brands', 
-    //       text: {
-    //         query: prompt,
-    //         path: ['name', 'description'], // Adjust fields based on your brand schema
-    //         fuzzy: { maxEdits: 1 }
-    //       }
-    //     }
-    //   },
-    //   {
-    //     $addFields: {
-    //       type: 'brand' // Add a field to identify the result type
-    //     }
-    //   },
-    //   { $limit: 10 }
-    // ]);
+    const combinedResults = [...productResults];
 
-    // Combine results
-    const combinedResults = [
-      ...productResults,
-    //   ...brandResults
-    ];
     return res.json({ 
       status: 'success', 
       results: combinedResults,
+      searchInfo: {
+        originalQuery: prompt,
+        processedQuery: searchQuery,
+        meaningfulWords: meaningfulWords
+      },
       summary: {
         products: productResults.length,
-        // brands: brandResults.length,
         total: combinedResults.length
       }
     });
@@ -250,6 +389,7 @@ export const searchProductsPrompt = async (req: Request, res: Response): Promise
     console.error('Search failed:', error);
     return res.status(500).json({ status: 'error', message: 'Search failed', error: error.message });
   }
-
 };
+
+
 
