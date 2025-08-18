@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, User, ArrowRight, Search, Mic, FileText, Zap, TrendingUp, Hammer, Building, X } from 'lucide-react';
+import { Menu, User, ArrowRight, Search, Mic, FileText, Zap, TrendingUp, Hammer, Building, X, Layers3, TreeDeciduous, Lamp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // No changes needed for this functional component
@@ -45,18 +45,27 @@ const AnimatedPlaceholder: React.FC<AnimatedPlaceholderProps> = ({ placeholders,
   );
 };
 
-// --- Header Component ---
+// --- Helper component for the new Brixly Logo ---
+const BrixlyLogo: React.FC = () => (
+    <div className="flex items-center gap-2">
+        <div className="bg-white p-1.5 rounded-md">
+            <div className="bg-black w-4 h-4 rounded-sm"/>
+        </div>
+        <span className="text-xl font-bold text-white tracking-wider">Brixly</span>
+    </div>
+);
+
+// --- MODIFIED Header Component ---
 const Header: React.FC = () => {
   return (
     <header className="flex items-center justify-between p-4 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
-      <Menu className="w-6 h-6 text-gray-300" />
-     
+      <BrixlyLogo />
       <User className="w-6 h-6 text-gray-300" />
     </header>
   );
 };
 
-// --- Hero Section Component with Voice Search & Permission Handling ---
+// --- Hero Section Component (No changes needed, mic animation is already included) ---
 const HeroSection: React.FC = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -195,27 +204,40 @@ const HeroSection: React.FC = () => {
     );
 };
 
-// --- Stats Section Component ---
-const StatsSection: React.FC = () => {
-    const stats = [
-        { icon: FileText, value: '10K+', label: 'Premium Suppliers' },
-        { icon: Zap, value: '50K+', label: 'Quality Materials' },
-        { icon: TrendingUp, value: '99%', label: 'Client Satisfaction' },
-    ];
+// --- NEW Featured Categories Section (Replaces StatsSection) ---
+const FeaturedCategoriesSection: React.FC = () => {
+  const categories = [
+    { 
+        icon: Layers3, 
+        title: 'Premium Tiles', 
+        description: 'Discover a world of marble, ceramic, and granite.' 
+    },
+    { 
+        icon: TreeDeciduous, // Changed from Hardwood
+        title: 'Hardwood Flooring', 
+        description: 'Elegant and durable options for any interior.' 
+    },
+    { 
+        icon: Lamp, 
+        title: 'Designer Lighting', 
+        description: 'Illuminate your space with our modern collection.' 
+    },
+];
     return (
         <div className="px-4 py-8">
-            <div className="grid grid-cols-3 gap-4 max-w-4xl mx-auto">
-                {stats.map((stat, index) => (
-                    <div key={index} className="bg-gray-800/50 p-4 rounded-2xl text-center border border-gray-700/50">
-                        <stat.icon className="w-8 h-8 mx-auto text-orange-400 mb-2" />
-                        <p className="text-xl sm:text-2xl font-bold text-white">{stat.value}</p>
-                        <p className="text-xs text-gray-400">{stat.label}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                {categories.map((cat, index) => (
+                    <div key={index} className="bg-gray-800/50 p-6 rounded-2xl border border-gray-700/50 text-center hover:bg-gray-800 transition-colors">
+                        <cat.icon className="w-10 h-10 mx-auto text-orange-400 mb-4" />
+                        <h3 className="text-lg font-semibold text-white">{cat.title}</h3>
+                        <p className="text-sm text-gray-400 mt-1">{cat.description}</p>
                     </div>
                 ))}
             </div>
         </div>
     );
 };
+
 
 // --- Journey Section Component ---
 const JourneySection: React.FC = () => {
@@ -406,7 +428,7 @@ const HomePage: React.FC = () => {
       <Header />
       <main>
         <HeroSection />
-        <StatsSection />
+        <FeaturedCategoriesSection /> {/* MODIFIED: Using the new section */}
         <JourneySection />
         <DailyInspirationSection />
       </main>
