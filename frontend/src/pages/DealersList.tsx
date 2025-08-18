@@ -1,83 +1,121 @@
-import { Menu } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, MapPin, Phone, MessageSquare } from 'lucide-react';
+
+// Define a type for a single dealer for better code safety
+interface Dealer {
+    id: number;
+    name: string;
+    location: string;
+    phone: string;
+    city: string;
+}
 
 export default function DealersList() {
-    const dealers = [
+    const navigate = useNavigate();
+
+    // Expanded dealer data for a more realistic look
+    const dealers: Dealer[] = [
         {
             id: 1,
             name: "ABC Corporation",
-            location: "Thrissur, Kerala",
-            phone: "+91 9876543210",
+            location: "MG Road, Thrissur",
+            city: "Kerala",
+            phone: "+91 98765 43210",
         },
         {
             id: 2,
             name: "Fortlight Plaza",
             location: "South Bazar, Kannur",
-            phone: "+91 9988776655",
+            city: "Kerala",
+            phone: "+91 99887 76655",
+        },
+        {
+            id: 3,
+            name: "Prestige Emporium",
+            location: "Koramangala, Bengaluru",
+            city: "Karnataka",
+            phone: "+91 91234 56789",
+        },
+        {
+            id: 4,
+            name: "Urban Materials Co.",
+            location: "Indiranagar, Bengaluru",
+            city: "Karnataka",
+            phone: "+91 98765 12345",
         },
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            {/* Header */}
-            <div className="bg-white shadow-lg border-b border-gray-200">
-                <div className="max-w-7xl mx-auto flex items-center justify-between p-4 md:p-6">
-                    <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-black rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200">
-                        <span className="text-white text-lg font-bold">S</span>
-                    </div>
-                    <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                        <Menu className="w-6 h-6 text-gray-700" />
-                    </button>
+        <div className="min-h-screen bg-black text-white font-sans">
+            {/* --- Header --- */}
+            <header className="sticky top-0 z-20 p-4 flex items-center justify-between bg-black/80 backdrop-blur-sm border-b border-gray-800">
+                <button onClick={() => navigate(-1)} className="p-2">
+                    <ChevronLeft className="w-6 h-6" />
+                </button>
+                <h1 className="text-lg font-semibold absolute left-1/2 -translate-x-1/2">
+                    Dealer's List
+                </h1>
+                {/* A placeholder for potential right-side icons */}
+                <div className="w-8"></div>
+            </header>
+
+            {/* --- Main Content --- */}
+            <main className="p-4">
+                <p className="text-gray-400 mb-6">Find authorized dealers near you</p>
+
+                <div className="space-y-4">
+                    {dealers.map((dealer) => (
+                        <DealerCard key={dealer.id} dealer={dealer} />
+                    ))}
                 </div>
-            </div>
-
-            {/* Title */}
-            <div className="max-w-7xl mx-auto p-6 md:p-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Dealer's List</h1>
-                <p className="text-gray-600 mt-1 text-sm md:text-base">Find authorized dealers near you</p>
-            </div>
-
-            {/* Dealers List */}
-            <div className="max-w-7xl mx-auto px-6 md:px-8 space-y-6 pb-12">
-                {dealers.map((dealer) => (
-                    <div
-                        key={dealer.id}
-                        className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8 hover:shadow-xl hover:scale-[1.01] transition-all duration-200 group"
-                    >
-                        <div className="flex items-start justify-between gap-6">
-                            <div className="flex-1">
-                                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-200">
-                                    {dealer.name}
-                                </h2>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                                        <div className="w-3 h-3 bg-white rounded-full"></div>
-                                    </div>
-                                    <span className="text-gray-700 font-medium text-sm md:text-base">
-                                        {dealer.location}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-md flex items-center justify-center shadow-sm">
-                                        <div className="w-3 h-3 bg-white rounded-full"></div>
-                                    </div>
-                                    <span className="text-gray-700 font-medium text-sm md:text-base">
-                                        {dealer.phone}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col items-end">
-                                {/* Replaced placeholder with a smaller, generic image or logo */}
-                                <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-green-200 to-green-300 rounded-xl flex items-center justify-center mb-4 shadow-md hover:shadow-lg transition-shadow duration-200 group-hover:scale-105">
-                                    <span className="text-green-600 font-bold text-lg"></span>
-                                </div>
-                                <button className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 px-6 py-2.5 md:py-3 rounded-xl font-bold text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-200">
-                                    Contact Sales →
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            </main>
         </div>
     );
 }
+
+// --- Dealer Card Component ---
+const DealerCard: React.FC<{ dealer: Dealer }> = ({ dealer }) => {
+    // Function to handle calling the dealer
+    const handleCall = (phoneNumber: string) => {
+        // Removes spaces and creates a tel: link
+        window.location.href = `tel:${phoneNumber.replace(/\s/g, '')}`;
+    };
+
+    return (
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 transition-colors hover:border-orange-500/50">
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+                {/* Dealer Info */}
+                <div className="flex-1">
+                    <p className="text-xs text-orange-400 font-semibold mb-1">{dealer.city}</p>
+                    <h2 className="text-xl font-bold text-white mb-3">{dealer.name}</h2>
+                    <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2 text-gray-300">
+                            <MapPin size={14} className="text-gray-500" />
+                            <span>{dealer.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-300">
+                            <Phone size={14} className="text-gray-500" />
+                            <span>{dealer.phone}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex sm:flex-col justify-start items-start gap-3 border-t border-gray-800 sm:border-t-0 sm:border-l sm:pl-4 pt-4 sm:pt-0">
+                    <button 
+                        onClick={() => handleCall(dealer.phone)}
+                        className="w-full text-center bg-orange-500 text-black px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <Phone size={16} />
+                        Call Now
+                    </button>
+                     <button className="w-full text-center bg-gray-700 text-white px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
+                        <MessageSquare size={16} />
+                        Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
