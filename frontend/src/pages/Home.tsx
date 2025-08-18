@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, User, ArrowRight, Search, Mic, FileText, Zap, TrendingUp, Hammer, Building } from 'lucide-react';
+import { Menu, User, ArrowRight, Search, Mic, FileText, Zap, TrendingUp, Hammer, Building, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // No changes needed for this functional component
@@ -45,26 +45,24 @@ const AnimatedPlaceholder: React.FC<AnimatedPlaceholderProps> = ({ placeholders,
   );
 };
 
-// --- NEW Header Component ---
+// --- Header Component ---
 const Header: React.FC = () => {
   return (
     <header className="flex items-center justify-between p-4 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
       <Menu className="w-6 h-6 text-gray-300" />
-      <div className="flex items-center gap-2">
-        <span className="text-2xl font-bold text-white tracking-wider">Brixly</span>
-        <button className="bg-gradient-to-r from-orange-500 to-amber-400 text-black px-3 py-1 rounded-full text-xs font-bold">
-          Pro
-        </button>
-      </div>
+     
       <User className="w-6 h-6 text-gray-300" />
     </header>
   );
 };
 
-// --- NEW Hero Section Component ---
+// --- Hero Section Component with Voice Search & Permission Handling ---
 const HeroSection: React.FC = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [isListening, setIsListening] = useState<boolean>(false);
+    const [showPermissionGuide, setShowPermissionGuide] = useState<boolean>(false);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
 
     const placeholders: string[] = [
         'I need exotic marble ranges for 10...',
@@ -72,27 +70,79 @@ const HeroSection: React.FC = () => {
         'textured wall panels for living room...',
     ];
 
-    const handleSearch = async (): Promise<void> => {
-        if (!searchQuery.trim()) return;
+    useEffect(() => {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.error("Speech Recognition is not supported by this browser.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setShowPermissionGuide(false);
+            setIsListening(true);
+        };
+
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
+            const transcript = event.results[0][0].transcript;
+            setSearchQuery(transcript);
+            handleSearch(transcript);
+        };
+
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+            console.error("Speech recognition error:", event.error);
+            if (event.error === 'not-allowed') {
+                setShowPermissionGuide(true);
+            }
+            setIsListening(false);
+        };
+        
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+
+    }, []);
+
+    const handleSearch = async (queryToSearch: string) => {
+        if (!queryToSearch.trim()) return;
 
         try {
-            console.log('Search:', searchQuery);
             const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
             const response = await fetch(`${API_BASE_URL}/products/search`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: searchQuery }),
+                body: JSON.stringify({ prompt: queryToSearch }),
             });
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const searchResults = await response.json();
             navigate('/SearchResultsPage', {
-                state: { results: searchResults, query: searchQuery },
+                state: { results: searchResults, query: queryToSearch },
             });
         } catch (error) {
             console.error('Search failed:', error);
+        }
+    };
+
+    const handleMicClick = () => {
+        if (!recognitionRef.current) return;
+        
+        if (showPermissionGuide) {
+            setShowPermissionGuide(false);
+        }
+        
+        if (isListening) {
+            recognitionRef.current.stop();
+        } else {
+            setSearchQuery('');
+            recognitionRef.current.start();
         }
     };
 
@@ -108,6 +158,18 @@ const HeroSection: React.FC = () => {
                 Connect with premium suppliers, discover cutting-edge materials, and transform your architectural vision into reality
             </p>
             <div className="relative max-w-xl mx-auto mt-8">
+                {showPermissionGuide && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 w-[calc(100%+2rem)] mb-4 bg-gray-800 border border-orange-500/50 rounded-lg p-4 text-left shadow-lg z-10">
+                        <button onClick={() => setShowPermissionGuide(false)} className="absolute top-2 right-2 text-gray-500 hover:text-white">
+                            <X size={18}/>
+                        </button>
+                        <p className="text-sm font-semibold text-white">Microphone is Blocked</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                            To use voice search, click the lock icon 🔒 in your address bar and set Microphone to "Allow". Then, click the mic icon again.
+                        </p>
+                    </div>
+                )}
+
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-600 to-amber-500 rounded-full blur opacity-75"></div>
                 <div className="relative flex items-center bg-gray-800 border border-gray-700 rounded-full px-4 py-3 shadow-lg">
                     <Search className="w-5 h-5 text-gray-400" />
@@ -115,22 +177,25 @@ const HeroSection: React.FC = () => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchQuery)}
                         className="w-full bg-transparent text-white placeholder-gray-500 text-sm pl-3 focus:outline-none"
                     />
-                    {!searchQuery && (
+                    {!searchQuery && !isListening && (
                         <div className="absolute left-12 top-1/2 -translate-y-1/2 pointer-events-none">
                             <AnimatedPlaceholder placeholders={placeholders} className="text-gray-500 text-sm" />
                         </div>
                     )}
-                    <Mic className="w-5 h-5 text-gray-400 ml-2" />
+                    <button onClick={handleMicClick} title="Search with voice" className="p-1 rounded-full transition-colors">
+                         <Mic className={`w-5 h-5 ml-2 ${isListening ? 'text-red-500 animate-pulse' : 'text-gray-400 hover:text-white'}`} />
+                    </button>
                 </div>
+                {isListening && <p className="text-orange-400 text-sm mt-2">Listening...</p>}
             </div>
         </div>
     );
 };
 
-// --- NEW Stats Section Component ---
+// --- Stats Section Component ---
 const StatsSection: React.FC = () => {
     const stats = [
         { icon: FileText, value: '10K+', label: 'Premium Suppliers' },
@@ -152,7 +217,7 @@ const StatsSection: React.FC = () => {
     );
 };
 
-// --- NEW Journey Section Component ---
+// --- Journey Section Component ---
 const JourneySection: React.FC = () => {
     return (
         <div className="px-4 py-12">
@@ -176,9 +241,7 @@ const JourneyCard: React.FC<{icon: React.ElementType, title: string}> = ({ icon:
     </div>
 );
 
-
-// --- UPDATED Daily Inspiration Section ---
-// This re-uses the original logic but applies the new dark theme styling
+// --- Daily Inspiration Section ---
 const DailyInspirationSection: React.FC = () => {
     const navigate = useNavigate();
     const inspirationData = [
@@ -190,8 +253,8 @@ const DailyInspirationSection: React.FC = () => {
     ];
 
     const handleKnowMore = (title: string): void => {
-        console.log(`Know more clicked for: ${title}`);
-        navigate('/product-detail');
+        const productData = inspirationData.find(p => p.title === title);
+        navigate('/product-detail', { state: { product: productData } });
     };
 
     return (
@@ -202,7 +265,7 @@ const DailyInspirationSection: React.FC = () => {
     );
 };
 
-// --- UPDATED Card Stack Component ---
+// --- Card Stack Component ---
 interface CardStackProps {
     cards: Array<{ id: number; title: string; brand: string; product: string; }>;
     onKnowMore: (title: string) => void;
@@ -273,7 +336,7 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
     );
 };
 
-// --- UPDATED Card Component ---
+// --- Card Component ---
 interface CardProps {
     title: string;
     brand: string;
@@ -316,7 +379,6 @@ const Card: React.FC<CardProps> = ({ title, brand, product, onKnowMore, onSwipe,
                 </div>
                 <div className="w-1/2 bg-gray-700/50 flex items-center justify-center p-4">
                     <div className="w-full h-full bg-gray-900 rounded-lg">
-                        {/* Placeholder for an image */}
                     </div>
                 </div>
             </div>
@@ -324,8 +386,7 @@ const Card: React.FC<CardProps> = ({ title, brand, product, onKnowMore, onSwipe,
     );
 };
 
-
-// Helper component for sparkle icon
+// --- Helper component for sparkle icon ---
 const SparkleIcon: React.FC<{className?: string}> = ({ className }) => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
         <path d="M12 2L14.09 8.26L20 9.27L15.55 13.97L16.91 20.24L12 17.27L7.09 20.24L8.45 13.97L4 9.27L9.91 8.26L12 2Z" fill="url(#sparkle-gradient)" />
@@ -337,7 +398,6 @@ const SparkleIcon: React.FC<{className?: string}> = ({ className }) => (
         </defs>
     </svg>
 );
-
 
 // --- Main Home Page Component ---
 const HomePage: React.FC = () => {
