@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, User, ArrowRight, Search, Mic, FileText, Zap, TrendingUp, Hammer, Building, X, Layers3, TreeDeciduous, Lamp } from 'lucide-react';
+import {  User, ArrowRight, Search, Mic, Hammer, Building, X, Layers3, TreeDeciduous, Lamp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // No changes needed for this functional component
