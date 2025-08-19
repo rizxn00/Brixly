@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { User, ArrowRight, Search, Mic, Hammer, Building, X, Layers3, TreeDeciduous, Lamp } from 'lucide-react';
+import { User, ArrowRight, Search, Mic, Hammer, Building, X, Layers3, TreeDeciduous, Lamp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.svg'
 import { motion, AnimatePresence } from 'framer-motion';
@@ -444,37 +444,38 @@ const DailyInspirationSection: React.FC = () => {
             title: 'Fabric Wall Panels',
             brand: 'Rivacase',
             product: 'Grey Water',
-            imageUrl: 'https://images.unsplash.com/photo-1635647331438-94444d1dd7a5?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            imageUrl: 'https://images.unsplash.com/photo-1635647331438-94444d1dd7a5?q=60&w=400&auto=format&fm=webp&fit=crop'
         },
         {
             id: 2,
             title: 'Wooden Accent Wall',
             brand: 'Nordic Designs',
             product: 'Oak Serenity',
-            imageUrl: 'https://images.unsplash.com/photo-1739918559783-ed40311fc814?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            imageUrl: 'https://images.unsplash.com/photo-1739918559783-ed40311fc814?q=60&w=400&auto=format&fm=webp&fit=crop'
         },
         {
             id: 3,
             title: 'Modern Ceiling Panels',
             brand: 'Urban Interiors',
             product: 'White Horizon',
-            imageUrl: 'https://images.unsplash.com/photo-1733760746685-99dcd3a6009e?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            imageUrl: 'https://images.unsplash.com/photo-1733760746685-99dcd3a6009e?q=60&w=400&auto=format&fm=webp&fit=crop'
         },
         {
             id: 4,
             title: 'Textured Wall Tiles',
             brand: 'Artisan Crafts',
             product: 'Stone Wave',
-            imageUrl: 'https://plus.unsplash.com/premium_photo-1675370609851-af2f2cf08c82?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            imageUrl: 'https://plus.unsplash.com/premium_photo-1675370609851-af2f2cf08c82?q=60&w=400&auto=format&fm=webp&fit=crop'
         },
         {
             id: 5,
             title: 'Glass Panel Walls',
             brand: 'Crystal Designs',
             product: 'Clear Vision',
-            imageUrl: 'https://images.unsplash.com/photo-1655258104134-35ea5ef8647c?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            imageUrl: 'https://images.unsplash.com/photo-1655258104134-35ea5ef8647c?q=60&w=400&auto=format&fm=webp&fit=crop'
         },
     ];
+
 
     const handleKnowMore = (title: string): void => {
         const productData = inspirationData.find(p => p.title === title);
@@ -497,27 +498,70 @@ interface CardStackProps {
 
 const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [isSwipePrevented, setIsSwipePrevented] = useState<boolean>(false);
     const touchStartX = useRef<number>(0);
     const touchEndX = useRef<number>(0);
+    const swipeThreshold = 90;
 
     const nextCard = () => setCurrentIndex((prev) => (prev + 1) % cards.length);
     const prevCard = () => setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
 
     const handleSwipe = (action: 'start' | 'end', value?: number) => {
-        if (action === 'start' && value !== undefined) touchStartX.current = value;
+        if (action === 'start' && value !== undefined) {
+            touchStartX.current = value;
+            touchEndX.current = value;
+            setIsSwipePrevented(false);
+        }
+
         if (action === 'end') {
+            if (isSwipePrevented) return;
+
             const swipeDistance = touchEndX.current - touchStartX.current;
-            if (swipeDistance > 50) prevCard();
-            else if (swipeDistance < -50) nextCard();
+            const swipeVelocity = Math.abs(swipeDistance);
+
+            if (swipeVelocity >= swipeThreshold) {
+                if (swipeDistance > 0) {
+                    prevCard();
+                } else {
+                    nextCard();
+                }
+            }
+
+            touchStartX.current = 0;
+            touchEndX.current = 0;
         }
     };
 
     const handleTouchMove = (value: number) => {
         touchEndX.current = value;
-    }
+    };
+
+    const handleButtonTouch = () => {
+        setIsSwipePrevented(true);
+    };
 
     return (
         <div className="relative max-w-md mx-auto h-[280px]">
+            {/* Navigation Buttons for Large Screens - Positioned Outside */}
+            <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 w-[calc(100%+120px)] -left-[60px] justify-between z-20 pointer-events-none">
+                <button
+                    onClick={prevCard}
+                    className="w-8 h-8 bg-gray-800/40 backdrop-blur-sm border border-gray-700/30 rounded-full flex items-center justify-center text-white/60 hover:bg-gray-800/60 hover:text-white hover:border-orange-500/20 transition-all duration-300 pointer-events-auto group opacity-60 hover:opacity-100"
+                    aria-label="Previous card"
+                >
+                    <ChevronLeft className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
+                </button>
+
+                <button
+                    onClick={nextCard}
+                    className="w-8 h-8 bg-gray-800/40 backdrop-blur-sm border border-gray-700/30 rounded-full flex items-center justify-center text-white/60 hover:bg-gray-800/60 hover:text-white hover:border-orange-500/20 transition-all duration-300 pointer-events-auto group opacity-60 hover:opacity-100"
+                    aria-label="Next card"
+                >
+                    <ChevronRight className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
+                </button>
+            </div>
+
+            {/* Card Stack */}
             <div className="relative h-[240px] select-none [perspective:1000px]">
                 {cards.map((card, index) => {
                     const isActive = index === currentIndex;
@@ -547,21 +591,29 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                                 brand={card.brand}
                                 product={card.product}
                                 imageUrl={card.imageUrl}
-                                onKnowMore={() => onKnowMore(card.title)}
+                                onKnowMore={() => {
+                                    handleButtonTouch();
+                                    onKnowMore(card.title);
+                                }}
                                 onSwipe={handleSwipe}
                                 onTouchMove={handleTouchMove}
                             />
                         </div>
                     );
                 })}
-
             </div>
-            <div className="flex justify-center mt-6 space-x-2">
+
+            {/* Dot Indicators */}
+            <div className="flex justify-center mt-6 space-x-3">
                 {cards.map((_, index) => (
                     <button
                         key={index}
                         onClick={() => setCurrentIndex(index)}
-                        className={`w-2 h-2 rounded-full transition-colors ${index === currentIndex ? 'bg-orange-500' : 'bg-gray-600'}`}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
+                                ? 'bg-orange-500 scale-125'
+                                : 'bg-gray-600 hover:bg-gray-500'
+                            }`}
+                        aria-label={`Go to card ${index + 1}`}
                     />
                 ))}
             </div>
