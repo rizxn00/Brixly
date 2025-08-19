@@ -501,7 +501,7 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
     const [isSwipePrevented, setIsSwipePrevented] = useState<boolean>(false);
     const touchStartX = useRef<number>(0);
     const touchEndX = useRef<number>(0);
-    const swipeThreshold = 90;
+    const swipeThreshold = 75;
 
     const nextCard = () => setCurrentIndex((prev) => (prev + 1) % cards.length);
     const prevCard = () => setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
@@ -512,13 +512,13 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
             touchEndX.current = value;
             setIsSwipePrevented(false);
         }
-
+        
         if (action === 'end') {
             if (isSwipePrevented) return;
-
+            
             const swipeDistance = touchEndX.current - touchStartX.current;
             const swipeVelocity = Math.abs(swipeDistance);
-
+            
             if (swipeVelocity >= swipeThreshold) {
                 if (swipeDistance > 0) {
                     prevCard();
@@ -526,7 +526,7 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                     nextCard();
                 }
             }
-
+            
             touchStartX.current = 0;
             touchEndX.current = 0;
         }
@@ -551,7 +551,7 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                 >
                     <ChevronLeft className="w-4 h-4 group-hover:text-orange-400 transition-colors" />
                 </button>
-
+                
                 <button
                     onClick={nextCard}
                     className="w-8 h-8 bg-gray-800/40 backdrop-blur-sm border border-gray-700/30 rounded-full flex items-center justify-center text-white/60 hover:bg-gray-800/60 hover:text-white hover:border-orange-500/20 transition-all duration-300 pointer-events-auto group opacity-60 hover:opacity-100"
@@ -609,10 +609,11 @@ const CardStack: React.FC<CardStackProps> = ({ cards, onKnowMore }) => {
                     <button
                         key={index}
                         onClick={() => setCurrentIndex(index)}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
-                                ? 'bg-orange-500 scale-125'
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                            index === currentIndex 
+                                ? 'bg-orange-500 scale-125' 
                                 : 'bg-gray-600 hover:bg-gray-500'
-                            }`}
+                        }`}
                         aria-label={`Go to card ${index + 1}`}
                     />
                 ))}
